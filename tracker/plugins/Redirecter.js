@@ -80,10 +80,15 @@ define([], function() {
 
 
 	Redirector.prototype.___render = function() {
-		var templateFunc = this.___Handlebars.compile(this.___template);
-		var html = templateFunc({
+
+		var html = this.___tracker.___renderHTML(this.___template, {
 			id: this.ID
 		});
+
+		/*var templateFunc = this.___Handlebars.compile(this.___template);
+		var html = templateFunc({
+			id: this.ID
+		});*/
 		var target = window.document.getElementById('tracker-plugin-' + this.ID);
 		target.innerHTML = html;
 		this.out();

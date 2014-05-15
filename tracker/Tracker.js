@@ -1,14 +1,14 @@
 define([], function() {
 	function Tracker(options) {
 
-
-		this.___Handlebars = options.Handlebars;
+		options = options || {};
+		//this.___Handlebars = options.Handlebars;
 
 		if (!this.___Handlebars) {
 
 
 
-			throw ('Handlebars is required.');
+			//throw ('Handlebars is required.');
 		}
 
 
@@ -79,8 +79,13 @@ define([], function() {
 						arr.push(item);
 					}
 
+					if (logkey === 'fixed') {
+						var first = arr.shift();
+						this.outFixed(first, arr.join(','));
+					} else {
+						this.out(logkey, arr.join(','));
+					}
 
-					this.out(logkey, arr.join(','));
 				});
 			}(log);
 
@@ -328,6 +333,7 @@ define([], function() {
 
 
 		this.___innerTarget.innerHTML = this.___renderHTML(this.___template, data);
+
 	};
 	Tracker.prototype.___renderShell = function() {
 
@@ -372,7 +378,7 @@ define([], function() {
 				/*, {
 				title: 'CON',
 				id: 'con',
-				color: this.___consoleMode ? 'white' : 'gray',
+			color: this.___consoleMode ? 'white' : 'gray',
 				handler: '___toggleConsole',
 				event: 'click'
 			}*/
@@ -459,16 +465,132 @@ define([], function() {
 
 
 
-	Tracker.prototype.___renderHTML = function(template, data) {
+	/*Tracker.prototype.___renderHTML = function(template, data) {
 		var templateFunc = this.___Handlebars.compile(template);
 		var html = templateFunc(data);
 		html = html.split('\n').join('<br>');
 		html = html.split('_space').join('&nbsp;');
 		return html;
+	};*/
+
+
+	Tracker.prototype.___renderHTML = function(template, data) {
+
+		template = this.___ifHandler(template, data);
+
+		var bits = template.split('{{#');
+		var len = bits.length;
+
+		for (var i = 1; i < len; i++) {
+			var bit = bits[i];
+			var pp = bit.split('}}');
+			var keyPiece = pp.shift();
+			bit = pp.join('}}');
+
+			var loopParts = bit.split('/' + keyPiece);
+			var loopBit = loopParts[0];
+
+			if (data[keyPiece]) {
+
+				var dataArr = data[keyPiece];
+				var dataArrLen = dataArr.length;
+
+				var loopItems = [];
+
+				for (var k = 0; k < dataArrLen; k++) {
+					var loopItem = this.___renderReplace(loopBit, dataArr[k], true);
+					loopItems.push(loopItem);
+				}
+
+				loopBit = loopItems.join('');
+				bits[i] = loopBit;
+			}
+
+			bits[i] += loopParts[1];
+
+		}
+
+		var html = bits.join('');
+		html = this.___renderReplace(html, data);
+
+		html = html.split('\n').join('<br>');
+		html = html.split('_space').join('&nbsp;');
+
+
+
+		return html;
+	};
+
+	Tracker.prototype.___ifHandler = function(template, data) {
+
+
+
+		var bits = template.split('{{#if ');
+		var len = bits.length;
+		var pieces = [];
+		for (var i = 0; i < len; i++) {
+			var bit = bits[i];
+			var parts = bit.split('{{/if}}');
+			pieces = pieces.concat(parts);
+
+		}
+
+		len = pieces.length;
+		for (var j = 1; j < len; j++) {
+			var piece = pieces[j];
+			if (piece && piece !== '') {
+
+
+
+				var ifPieces = piece.split('}}');
+				var ifPiece = ifPieces[0];
+
+
+
+				if (data[ifPiece] === false) {
+					ifPieces.shift();
+					piece = ifPieces.join('}}');
+					pieces[j] = piece;
+					pieces.splice(j - 1, 2);
+
+				}
+
+			}
+		}
+
+		var html = pieces.join('');
+
+		return html;
+	};
+
+	Tracker.prototype.___renderReplace = function(template, data, log) {
+		var bits = template.split('{{');
+		var len = bits.length;
+		var pieces = [];
+		for (var i = 0; i < len; i++) {
+			var bit = bits[i];
+			var parts = bit.split('}}');
+			pieces = pieces.concat(parts);
+
+		}
+
+		len = pieces.length;
+		for (var j = 0; j < len; j++) {
+			var piece = pieces[j];
+
+
+			if (data[piece]) {
+				pieces[j] = data[piece];
+			}
+		}
+
+		var html = pieces.join('');
+
+		return html;
 	};
 
 
-	//Tracker.prototype.___templateShell = '<div style="background:rgba(0,0,0,0.8);padding:2px; font-size:8px;">{{#if menu}}<div style="color:white;font:bold; min-width:160px;"><p id="tracker-move" style="float:left;"> [<>]&nbsp;</p><p id="tracker-play" style="float:left;">&nbsp;[>]&nbsp;</p><p id="tracker-pause">&nbsp;[||]</p></div>{{/if}}<div id="tracker-content"></div></div>';
+
 	Tracker.prototype.___templateShell = '<div style="margin:1px; font-family:monospace; background:rgba(0,0,0,{{alpha}});padding:2px; font-size:12px; color:white;"><div>{{#items}}<p id="tracker-{{id}}" style="font-family:monospace;float:left; color:{{color}}; cursor:pointer; -webkit-margin-before:0px;-webkit-margin-after:0px;"> [{{title}}]</p>{{/items}}</div>{{#plugins}}<div style="clear:both;" id="tracker-plugin-{{id}}"></div>{{/plugins}}<div style="clear:both;" id="tracker-content"></div></div>';
 
 	Tracker.prototype.___template = '<div>{{#fixed}}<p style="font-family:monospace;margin:1px; color:{{color}};">{{key}} : {{value}}</p>{{/fixed}}</div><div">{{#rolling}}<p style="margin:1px;color:{{color}};">{{key}} : {{value}}</p>{{/rolling}}</div>';
