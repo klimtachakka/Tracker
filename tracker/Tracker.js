@@ -591,7 +591,7 @@ define([], function() {
 
 
 
-	Tracker.prototype.___templateShell = '<div style="margin:1px; font-family:monospace; background:rgba(0,0,0,{{alpha}});padding:2px; font-size:12px; color:white;"><div>{{#items}}<p id="tracker-{{id}}" style="font-family:monospace;float:left; color:{{color}}; cursor:pointer; -webkit-margin-before:0px;-webkit-margin-after:0px;"> [{{title}}]</p>{{/items}}</div>{{#plugins}}<div style="clear:both;" id="tracker-plugin-{{id}}"></div>{{/plugins}}<div style="clear:both;" id="tracker-content"></div></div>';
+	Tracker.prototype.___templateShell = '<div style="margin:1px; font-family:monospace; background:rgba(0,0,0,{{alpha}});padding:2px; font-size:12px; color:white;"><div>{{#items}}<p id="tracker-{{id}}" style="font-family:monospace;float:left; color:{{color}}; cursor:pointer; margin-top:0px;margin-bottom:0px;"> [{{title}}]</p>{{/items}}</div>{{#plugins}}<div style="clear:both;" id="tracker-plugin-{{id}}"></div>{{/plugins}}<div style="clear:both;" id="tracker-content"></div></div>';
 
 	Tracker.prototype.___template = '<div>{{#fixed}}<p style="font-family:monospace;margin:1px; color:{{color}};">{{key}} : {{value}}</p>{{/fixed}}</div><div">{{#rolling}}<p style="margin:1px;color:{{color}};">{{key}} : {{value}}</p>{{/rolling}}</div>';
 
