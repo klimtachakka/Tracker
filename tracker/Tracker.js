@@ -295,6 +295,8 @@ define([], function() {
 		}, {
 			'X': 'clear tracking'
 		}, {
+			'FPS': 'show fps monitor',
+		}, {
 			'options': '___________________________________________________'
 		}, {
 			'maxRolling': 'maximum fields displayed from tracker.out()'
@@ -306,6 +308,12 @@ define([], function() {
 			'Handlebars': 'instance of Handlebars (required)'
 		}, {
 			'alpha': 'float 0 - 1 (background)'
+		}, {
+			'logs': '{log:true, custom:true} enable static logs on window.tracker'
+		}, {
+			'fps': '(number) set target FPS for FPS monitor'
+		}, {
+			'fpsExtended': '(boolean) show extended FPS information'
 		}, {
 			'usage': '_____________________________________________________'
 		}, {
