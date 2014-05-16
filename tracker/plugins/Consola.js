@@ -4,7 +4,7 @@ define([], function() {
 		this.___argsCache = [];
 		this.___argsCacheId = 0;
 		this.___lastInput = '';
-		this.___Handlebars = options.Handlebars;
+		this.___tracker = options.tracker;
 
 		//this.___refresh = options.refresh;
 		//this.___manipulateEvents = options.manipulateEvents;
@@ -209,10 +209,10 @@ define([], function() {
 
 
 	Consola.prototype.___render = function() {
-		var templateFunc = this.___Handlebars.compile(this.___template);
-		var html = templateFunc({
+		var html = this.___tracker.___renderHTML(this.___template, {
 			id: this.ID
 		});
+
 		var target = window.document.getElementById('tracker-plugin-' + this.ID);
 		target.innerHTML = html;
 	};

@@ -17,7 +17,7 @@ define([], function() {
 		this.___alpha = options.alpha || 0.8;
 		this.___plugins = this.___addPlugins(options.plugins);
 		this.___timeStamp = (options.timeStamp === false) ? false : true;
-
+		this.___targetFps = options.fps || 60;
 
 
 		this.___filter = options.filter || {
@@ -62,7 +62,32 @@ define([], function() {
 
 
 		this.___timers = {};
+
+
 	}
+
+	Tracker.prototype.___fpsManager = function() {
+		var fps = this.___targetFps;
+		window.tracker.outFixed('FPS', fps + ' calculating...', true);
+
+		var rTime = 1000 / fps;
+		var lastTime = new Date().getTime();
+		var combinedTime = 0;
+		var steps = 0;
+		this.FpsKey = setInterval(function() {
+			var currentTime = new Date().getTime();
+			var step = (currentTime - lastTime);
+			lastTime = currentTime;
+			combinedTime += step;
+			steps++;
+			if (combinedTime > 1000) {
+				window.tracker.outFixed('FPS', fps + ' / ' + Math.round(1000 / (combinedTime / steps)), true);
+				combinedTime = 0;
+				steps = 0;
+			}
+		}, rTime);
+	};
+
 
 	Tracker.prototype.___start = function(key, log, fixed) {
 		var time = new Date().getTime();
@@ -178,6 +203,16 @@ define([], function() {
 				pluginObj.instance.enabled = !pluginObj.instance.enabled;
 				break;
 			}
+		}
+		this.___refresh();
+	};
+
+	Tracker.prototype.___fpsHandler = function() {
+		if (this.FpsKey) {
+			window.clearInterval(this.FpsKey);
+			this.FpsKey = null;
+		} else {
+			this.___fpsManager();
 		}
 		this.___refresh();
 	};
@@ -330,8 +365,8 @@ define([], function() {
 		}
 
 	};
-	Tracker.prototype.outFixed = function(key, value) {
-		if (!this.___paused && this.___filter.fixed) {
+	Tracker.prototype.outFixed = function(key, value, force) {
+		if (!this.___paused && this.___filter.fixed || force) {
 			this.___fixedHash[key] = this.___makeLogItem('cyan', key, value + '');
 			if (!this.___miniMized) {
 				this.___render();
@@ -440,6 +475,12 @@ define([], function() {
 					id: 'clear',
 					color: 'white',
 					handler: '___clearHandler',
+					event: 'click'
+				}, {
+					title: 'FPS',
+					id: 'fps',
+					color: this.FpsKey ? 'white' : 'gray',
+					handler: '___fpsHandler',
 					event: 'click'
 				}
 				/*, {

@@ -1,11 +1,12 @@
 (function() {
 
 
-	require(['../tracker/Tracker.js', '../tracker/plugins/Redirecter'], function(Tracker, Redirecter) {
+	require(['../tracker/Tracker.js', '../tracker/plugins/Redirecter', '../tracker/plugins/Consola'], function(Tracker, Redirecter, Consola) {
 
 		var t = new Tracker({
-			plugins: [Redirecter],
+			plugins: [Redirecter, Consola],
 			timeStamp: false,
+			alpha: '0.9',
 			logs: {
 				log: true,
 				green: true,
