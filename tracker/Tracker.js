@@ -19,7 +19,7 @@ define([], function() {
 		this.___timeStamp = (options.timeStamp === false) ? false : true;
 		this.___targetFps = options.fps || 60;
 		this.___fpsExtended = options.fpsExtended || false;
-
+		this.___namespace = options.namespace || 'tracker';
 
 		this.___filter = options.filter || {
 			log: true,
@@ -41,7 +41,7 @@ define([], function() {
 		this.___target = options.target || this.___createTarget();
 		this.___refresh();
 
-		window.tracker = {
+		var publicApi = {
 			out: this.___bind(this.out),
 			outObj: this.___bind(this.outObj),
 			outFixed: this.___bind(this.outFixed),
@@ -50,14 +50,16 @@ define([], function() {
 			filter: this.___filter
 		};
 
+		window[this.___namespace] = publicApi;
+
 
 		this.___addLogs(this.___logs);
 
 
 
 		var that = this;
-		window.onerror = function eHandler(errorMsg, url, lineNumber) {
-			window.tracker.out('error', errorMsg + ', ' + url + ', ' + lineNumber, true);
+		window.onerror = function(errorMsg, url, lineNumber, column, errorObj) {
+			window[that.___namespace].out('error', errorMsg + ', ' + url + ', ' + lineNumber + ', ' + column + ', ' + errorObj, true);
 
 		};
 
@@ -69,11 +71,11 @@ define([], function() {
 
 	Tracker.prototype.___fpsManager = function() {
 		var fps = this.___targetFps;
-		window.tracker.outFixed('FPS ' + fps, ' calculating...', true);
+		this.outFixed('FPS ' + fps, ' calculating...', true);
 		if (this.___fpsExtended) {
-			window.tracker.outFixed('FPS min', ' calculating...', true);
-			window.tracker.outFixed('FPS max', ' calculating...', true);
-			window.tracker.outFixed('FPS avg', ' calculating...', true);
+			this.outFixed('FPS min', ' calculating...', true);
+			this.outFixed('FPS max', ' calculating...', true);
+			this.outFixed('FPS avg', ' calculating...', true);
 		}
 
 		var rTime = 1000 / fps;
@@ -102,16 +104,16 @@ define([], function() {
 
 
 
-				window.tracker.outFixed('FPS ' + fps, Math.round(1000 / (combinedTime / steps)), true);
+				that.outFixed('FPS ' + fps, Math.round(1000 / (combinedTime / steps)), true);
 
 				combinedTime = 0;
 				steps = 0;
 
 				if (that.___fpsExtended && longCombinedTime - lastLongUpdated > 3000) {
 
-					window.tracker.outFixed('FPS min', Math.round(1000 / max), true);
-					window.tracker.outFixed('FPS max', Math.round(1000 / min), true);
-					window.tracker.outFixed('FPS avg', Math.round(1000 / (longCombinedTime / longSteps)), true);
+					that.outFixed('FPS min', Math.round(1000 / max), true);
+					that.outFixed('FPS max', Math.round(1000 / min), true);
+					that.outFixed('FPS avg', Math.round(1000 / (longCombinedTime / longSteps)), true);
 					lastLongUpdated = longCombinedTime;
 					//longSteps = 0;
 					//longCombinedTime = 0;
@@ -156,7 +158,7 @@ define([], function() {
 
 
 
-			window.tracker[log] = function(log) {
+			window[this.___namespace][log] = function(log) {
 				return that.___bind(function() {
 					var logkey = log;
 					var arr = [];
@@ -309,11 +311,13 @@ define([], function() {
 		}, {
 			'alpha': 'float 0 - 1 (background)'
 		}, {
-			'logs': '{log:true, custom:true} enable static logs on window.tracker'
+			'logs': '{log:true, custom:true} enable static logs on window' + this.___namespace
 		}, {
 			'fps': '(number) set target FPS for FPS monitor'
 		}, {
 			'fpsExtended': '(boolean) show extended FPS information'
+		}, {
+			'namespace': 'where to put the global tracker object (defaults to tracker)'
 		}, {
 			'usage': '_____________________________________________________'
 		}, {
@@ -323,7 +327,7 @@ define([], function() {
 		}, {
 			'outObj': 'tracker.outObj({key1:value1},RECURSIVE)'
 		}, {
-			'window.tracker': 'see browser console for available logs based on setup'
+			'window.(namespace)': 'see browser console for available logs based on setup'
 		}, {
 			'filter states': '_____________________________________________'
 		}];

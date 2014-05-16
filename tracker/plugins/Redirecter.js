@@ -58,8 +58,8 @@ define([], function() {
 	Redirector.prototype.___overrideConsole = function() {
 		if (window.console) {
 			for (var key in this.savedConsole) {
-				if (window.tracker[key] && this.savedConsole[key]) {
-					window.console[key] = window.tracker[key];
+				if (window[this.___tracker.___namespace][key] && this.savedConsole[key]) {
+					window.console[key] = window[this.___tracker.___namespace][key];
 				}
 			}
 		}
@@ -132,7 +132,7 @@ define([], function() {
 
 	Redirector.prototype.out = function() {
 
-		window.tracker.outFixed('RDR mode:', this.modes[this.outMode], true);
+		window[this.___tracker.___namespace].outFixed('RDR mode:', this.modes[this.outMode], true);
 
 	};
 

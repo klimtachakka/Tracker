@@ -8,6 +8,7 @@
 			timeStamp: false,
 			alpha: '0.9',
 			fps: 50,
+			//namespace: 't2',
 			fpsExtended: true,
 			logs: {
 				log: true,
@@ -34,6 +35,7 @@
 				pink: '#FF69B4'
 			}
 		});
+
 
 
 		window.tracker.pink('pink');

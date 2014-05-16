@@ -39,7 +39,7 @@ define([], function() {
 				params = commands.split(' ').join('').split(',');
 			}
 
-			window.tracker.outFixed('[PARAM]', params);
+			window[this.___tracker.___namespace].outFixed('[PARAM]', params);
 		}
 
 		var values = value.split('.');
@@ -80,10 +80,10 @@ define([], function() {
 
 				if (result === 0) {
 					if (!printed) {
-						window.tracker.outFixed('[SPACE] >', key);
+						window[this.___tracker.___namespace].outFixed('[SPACE] >', key);
 						printed = true;
 					}
-					//window.tracker.outFixed(i, key + ':' + currValue);
+					//window[this.___tracker.___namespace].outFixed(i, key + ':' + currValue);
 
 					if (shortCut && i === len - 1) {
 						currValue = key;
@@ -96,7 +96,7 @@ define([], function() {
 
 						keyChain.push(currValue);
 
-						window.tracker.outFixed('[ENTER] > ', keyChain.join('.'));
+						window[this.___tracker.___namespace].outFixed('[ENTER] > ', keyChain.join('.'));
 					}
 
 					if (shortCut && i === len - 1) {
@@ -114,7 +114,7 @@ define([], function() {
 			}
 		}
 
-		window.tracker.outFixed('[ITEMS]', '[' + keys.join('][') + ']');
+		window[this.___tracker.___namespace].outFixed('[ITEMS]', '[' + keys.join('][') + ']');
 
 
 
@@ -131,22 +131,22 @@ define([], function() {
 	Consola.prototype.runCommand = function(keyChain, cd, params) {
 		if (params.length > 0) {
 
-			window.tracker.out('>', keyChain.join('.') + '(' + params.join(',') + ');', true);
+			window[this.___tracker.___namespace].out('>', keyChain.join('.') + '(' + params.join(',') + ');', true);
 
-			window.tracker.out('>', cd.apply(this, params, true));
+			window[this.___tracker.___namespace].out('>', cd.apply(this, params, true));
 		} else {
 
-			window.tracker.out('>', keyChain.join('.'), true);
+			window[this.___tracker.___namespace].out('>', keyChain.join('.'), true);
 
 			if (!cd.length) {
 				for (var key in cd) {
-					window.tracker.outObj(cd);
+					window[this.___tracker.___namespace].outObj(cd);
 					key = null;
 					return;
 
 				}
 			}
-			window.tracker.out('>', cd, true);
+			window[this.___tracker.___namespace].out('>', cd, true);
 		}
 
 
