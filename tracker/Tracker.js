@@ -18,6 +18,8 @@ define([], function() {
 		this.___plugins = this.___addPlugins(options.plugins);
 		this.___timeStamp = (options.timeStamp === false) ? false : true;
 
+
+
 		this.___filter = options.filter || {
 			log: true,
 			warn: true,
@@ -55,20 +57,38 @@ define([], function() {
 		var that = this;
 		window.onerror = function eHandler(errorMsg, url, lineNumber) {
 			window.tracker.out('error', errorMsg + ', ' + url + ', ' + lineNumber, true);
+
 		};
 
 
 		this.___timers = {};
 	}
 
-	Tracker.prototype.___start = function(key) {
+	Tracker.prototype.___start = function(key, log, fixed) {
 		var time = new Date().getTime();
 		this.___timers[key] = time;
+
+		if (log) {
+			if (fixed) {
+				this.outFixed(key, 'started', true);
+			} else {
+				this.out(key, 'started', true);
+			}
+		}
 	};
-	Tracker.prototype.___end = function(key) {
+	Tracker.prototype.___end = function(key, optionalMessage, fixed) {
+		optionalMessage = optionalMessage || '';
+
 		var startTime = this.___timers[key];
 		var time = new Date().getTime();
-		this.out(key, (time - startTime) + ' ms', true);
+		var result = (time - startTime);
+		if (fixed) {
+			this.outFixed(key, result + ' ms ' + optionalMessage, true);
+		} else {
+			this.out(key, result + ' ms ' + optionalMessage, true);
+		}
+
+		return result;
 	};
 
 
@@ -194,6 +214,8 @@ define([], function() {
 		this.___paused = false;
 
 		var helpers = [{
+			'version': '0.2'
+		}, {
 			'<': 'minimize tracking (still collecting tracks)'
 		}, {
 			'>': 'maximize tracking (only available after minimize)'
@@ -225,6 +247,8 @@ define([], function() {
 			'outFixed': 'tracker.outFixed(KEY, ARG)'
 		}, {
 			'outObj': 'tracker.outObj({key1:value1},RECURSIVE)'
+		}, {
+			'window.tracker': 'see browser console for available logs based on setup'
 		}, {
 			'filter states': '_____________________________________________'
 		}];

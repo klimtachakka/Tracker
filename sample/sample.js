@@ -5,8 +5,37 @@
 
 		var t = new Tracker({
 			plugins: [Redirecter],
-			timeStamp: false
+			timeStamp: false,
+			logs: {
+				log: true,
+				green: true,
+				warn: true,
+				fixed: true,
+				error: true,
+				pink: true
+			},
+			filter: {
+				log: true,
+				green: true,
+				warn: true,
+				error: true,
+				fixed: true,
+				pink: true
+			},
+			colorMap: {
+				fixed: 'cyan',
+				log: 'white',
+				warn: 'yellow',
+				error: 'red',
+				green: '#ADFF2F',
+				pink: '#FF69B4'
+			}
 		});
+
+
+		window.tracker.pink('pink');
+		window.tracker.green('THIS IS GREEN');
+		window.tracker.out('green', 'THIS IS GREEN');
 
 		window.tracker.log('logg... (static access)', 'handles', 'multiple', {
 			arg: {
@@ -25,7 +54,7 @@
 
 		}, 100);
 
-		window.tracker.start('TIMER_KEY');
+		window.tracker.start('TIMER_KEY', true, true);
 
 		var key2 = setInterval(function() {
 			window.tracker.log('rolling log:', Math.random());
@@ -35,6 +64,7 @@
 				clearInterval(key1);
 				clearInterval(key2);
 				window.tracker.end('TIMER_KEY');
+				window.tracker.end('TIMER_KEY', true);
 			}
 		}, 800);
 
