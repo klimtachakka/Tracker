@@ -7,6 +7,8 @@
 			plugins: [Redirecter, Consola],
 			timeStamp: false,
 			alpha: '0.9',
+			fps: 50,
+			fpsExtended: true,
 			logs: {
 				log: true,
 				green: true,

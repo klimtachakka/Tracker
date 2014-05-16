@@ -18,6 +18,7 @@ define([], function() {
 		this.___plugins = this.___addPlugins(options.plugins);
 		this.___timeStamp = (options.timeStamp === false) ? false : true;
 		this.___targetFps = options.fps || 60;
+		this.___fpsExtended = options.fpsExtended || false;
 
 
 		this.___filter = options.filter || {
@@ -68,22 +69,53 @@ define([], function() {
 
 	Tracker.prototype.___fpsManager = function() {
 		var fps = this.___targetFps;
-		window.tracker.outFixed('FPS', fps + ' calculating...', true);
+		window.tracker.outFixed('FPS ' + fps, ' calculating...', true);
+		if (this.___fpsExtended) {
+			window.tracker.outFixed('FPS min', ' calculating...', true);
+			window.tracker.outFixed('FPS max', ' calculating...', true);
+			window.tracker.outFixed('FPS avg', ' calculating...', true);
+		}
 
 		var rTime = 1000 / fps;
 		var lastTime = new Date().getTime();
 		var combinedTime = 0;
+		var longCombinedTime = 0;
+		var lastLongUpdated = 0;
 		var steps = 0;
+		var longSteps = 0;
+		var min = Number.MAX_VALUE;
+		var max = 0;
+		var that = this;
 		this.FpsKey = setInterval(function() {
 			var currentTime = new Date().getTime();
 			var step = (currentTime - lastTime);
+
+			min = Math.min(step, min);
+			max = Math.max(step, max);
+
 			lastTime = currentTime;
 			combinedTime += step;
+			longCombinedTime += step;
 			steps++;
-			if (combinedTime > 1000) {
-				window.tracker.outFixed('FPS', fps + ' / ' + Math.round(1000 / (combinedTime / steps)), true);
+			longSteps++;
+			if (combinedTime > 500) {
+
+
+
+				window.tracker.outFixed('FPS ' + fps, Math.round(1000 / (combinedTime / steps)), true);
+
 				combinedTime = 0;
 				steps = 0;
+
+				if (that.___fpsExtended && longCombinedTime - lastLongUpdated > 3000) {
+
+					window.tracker.outFixed('FPS min', Math.round(1000 / max), true);
+					window.tracker.outFixed('FPS max', Math.round(1000 / min), true);
+					window.tracker.outFixed('FPS avg', Math.round(1000 / (longCombinedTime / longSteps)), true);
+					lastLongUpdated = longCombinedTime;
+					//longSteps = 0;
+					//longCombinedTime = 0;
+				}
 			}
 		}, rTime);
 	};
