@@ -2,14 +2,6 @@ define([], function() {
 	function Tracker(options) {
 
 		options = options || {};
-		//this.___Handlebars = options.Handlebars;
-
-		if (!this.___Handlebars) {
-
-
-
-			//throw ('Handlebars is required.');
-		}
 
 
 
@@ -50,6 +42,8 @@ define([], function() {
 			out: this.___bind(this.out),
 			outObj: this.___bind(this.outObj),
 			outFixed: this.___bind(this.outFixed),
+			start: this.___bind(this.___start),
+			end: this.___bind(this.___end),
 			filter: this.___filter
 		};
 
@@ -57,7 +51,25 @@ define([], function() {
 		this.___addLogs(this.___logs);
 
 
+
+		var that = this;
+		window.onerror = function eHandler(errorMsg, url, lineNumber) {
+			window.tracker.out('error', errorMsg + ', ' + url + ', ' + lineNumber, true);
+		};
+
+
+		this.___timers = {};
 	}
+
+	Tracker.prototype.___start = function(key) {
+		var time = new Date().getTime();
+		this.___timers[key] = time;
+	};
+	Tracker.prototype.___end = function(key) {
+		var startTime = this.___timers[key];
+		var time = new Date().getTime();
+		this.out(key, (time - startTime) + ' ms', true);
+	};
 
 
 
@@ -177,6 +189,8 @@ define([], function() {
 	Tracker.prototype.___helpHandler = function() {
 		var maxRolling = this.___maxRolling;
 
+		var savedPause = this.___paused;
+
 		this.___paused = false;
 
 		var helpers = [{
@@ -221,9 +235,26 @@ define([], function() {
 			helpers.push(obj);
 		}
 
+		helpers.push({
+			'active plugins': '_____________________________________________'
+		});
+
+
+		for (var j = 0; j < this.___plugins.length; j++) {
+			var pInstance = this.___plugins[j].instance;
+
+			if (pInstance.help) {
+				var phObj = {};
+				phObj[pInstance.ID] = pInstance.help();
+				helpers.push(phObj);
+			}
+		}
+
 		this.___maxRolling = helpers.length;
 
 		this.___refresh();
+
+
 
 		for (var i = 0; i < this.___maxRolling; i++) {
 			var helpItem = helpers[i];
@@ -233,7 +264,10 @@ define([], function() {
 		}
 
 
+
 		this.___maxRolling = maxRolling;
+
+		this.___paused = savedPause;
 	};
 
 	Tracker.prototype.___bind = function(func, scope) {
@@ -255,6 +289,11 @@ define([], function() {
 
 
 		if ((this.___filter[key] || force) && !this.___paused) {
+
+			if (window.JSON && typeof(value) === 'object') {
+				value = window.JSON.stringify(value);
+			}
+
 			this.___rolling.push(this.___makeLogItem(this.___colorMap[key], key, value + ''));
 
 			if (this.___rolling.length > this.___maxRolling) {
@@ -277,7 +316,11 @@ define([], function() {
 	};
 	Tracker.prototype.outObj = function(obj) {
 		for (var key in obj) {
-			this.out(key, obj[key], true);
+			if (window.JSON) {
+				this.out(key, window.JSON.stringify(obj[key]), true);
+			} else {
+				this.out(key, obj[key], true);
+			}
 		}
 	};
 
@@ -500,6 +543,8 @@ define([], function() {
 				for (var k = 0; k < dataArrLen; k++) {
 					var loopItem = this.___renderReplace(loopBit, dataArr[k], true);
 					loopItems.push(loopItem);
+
+
 				}
 
 				loopBit = loopItems.join('');
@@ -510,7 +555,11 @@ define([], function() {
 
 		}
 
+		/*var firstPart = bits[0];
+		firstPart = this.___renderReplace(firstPart, data);
+		bits[0] = firstPart;*/
 		var html = bits.join('');
+
 		html = this.___renderReplace(html, data);
 
 		html = html.split('\n').join('<br>');
@@ -567,6 +616,8 @@ define([], function() {
 		var bits = template.split('{{');
 		var len = bits.length;
 		var pieces = [];
+
+
 		for (var i = 0; i < len; i++) {
 			var bit = bits[i];
 			var parts = bit.split('}}');
@@ -577,8 +628,6 @@ define([], function() {
 		len = pieces.length;
 		for (var j = 0; j < len; j++) {
 			var piece = pieces[j];
-
-
 			if (data[piece]) {
 				pieces[j] = data[piece];
 			}
@@ -591,7 +640,7 @@ define([], function() {
 
 
 
-	Tracker.prototype.___templateShell = '<div style="margin:1px; font-family:monospace; background:rgba(0,0,0,{{alpha}});padding:2px; font-size:12px; color:white;"><div>{{#items}}<p id="tracker-{{id}}" style="font-family:monospace;float:left; color:{{color}}; cursor:pointer; margin-top:0px;margin-bottom:0px;"> [{{title}}]</p>{{/items}}</div>{{#plugins}}<div style="clear:both;" id="tracker-plugin-{{id}}"></div>{{/plugins}}<div style="clear:both;" id="tracker-content"></div></div>';
+	Tracker.prototype.___templateShell = '<div style="margin:1px; font-family:monospace; background:rgba(0,0,0,{{alpha}});padding:2px; font-size:12px; color:white; "><div>{{#items}}<p id="tracker-{{id}}" style="font-family:monospace;float:left; color:{{color}}; cursor:pointer; margin-top:0px;margin-bottom:0px;"> [{{title}}]</p>{{/items}}</div>{{#plugins}}<div style="clear:both;" id="tracker-plugin-{{id}}"></div>{{/plugins}}<div style="clear:both;" id="tracker-content"></div></div>';
 
 	Tracker.prototype.___template = '<div>{{#fixed}}<p style="font-family:monospace;margin:1px; color:{{color}};">{{key}} : {{value}}</p>{{/fixed}}</div><div">{{#rolling}}<p style="margin:1px;color:{{color}};">{{key}} : {{value}}</p>{{/rolling}}</div>';
 

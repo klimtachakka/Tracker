@@ -1,7 +1,7 @@
 define([], function() {
 	function Redirector(options) {
 		this.enabled = false;
-		this.___Handlebars = options.Handlebars;
+
 		this.___tracker = options.tracker;
 
 		this.outMode = 0;
@@ -40,6 +40,10 @@ define([], function() {
 				this.savedConsole[key] = window.console[key];
 			}
 		}
+	};
+
+	Redirector.prototype.help = function() {
+		return 'Redirecter overrides native console to tracker or overrides tracker to output to native console';
 	};
 
 	Redirector.prototype.___defaultBehaviour = function() {
@@ -85,10 +89,6 @@ define([], function() {
 			id: this.ID
 		});
 
-		/*var templateFunc = this.___Handlebars.compile(this.___template);
-		var html = templateFunc({
-			id: this.ID
-		});*/
 		var target = window.document.getElementById('tracker-plugin-' + this.ID);
 		target.innerHTML = html;
 		this.out();
