@@ -1,4 +1,11 @@
-define([], function() {
+(function() {
+
+
+	if (!window.trackerPlugins) {
+		window.trackerPlugins = [];
+	}
+	window.trackerPlugins.push(Consola);
+
 	function Consola(options) {
 
 		this.___argsCache = [];
@@ -222,4 +229,4 @@ define([], function() {
 	return Consola;
 
 
-});
+})();
