@@ -3,10 +3,11 @@
 
 
 	var instance = function() {
-		function Tracker(options) {
+		function Tracker() {
 
-			options = options || {};
-
+			window.tracker = {
+				setup: this.___bind(this.___setup)
+			};
 
 
 			this.___eventHandlerHash = {};
@@ -19,7 +20,7 @@
 			this.___showFilters = true;
 			this.___timers = {};
 
-			this.___setup(options);
+			//this.___setup(options);
 
 
 
@@ -30,6 +31,11 @@
 		}
 
 		Tracker.prototype.___setup = function(options) {
+
+			options = options || {};
+
+
+
 			this.___miniMized = options.minimized === true;
 			this.___maxRolling = options.maxRolling || 12;
 			this.___alpha = options.alpha || 0.8;
@@ -63,8 +69,8 @@
 
 
 
-			this.___target = options.target || this.___createTarget();
-			this.___refresh();
+			this.___target = options.target || this.___createTarget(options.targetId);
+			this.___refresh(true);
 
 			var publicApi = {
 				out: this.___bind(this.out),
@@ -76,7 +82,7 @@
 				setup: this.___bind(this.___setup)
 			};
 
-			window['tracker'] = null;
+			//window['tracker'] = null;
 
 			window[this.___namespace] = publicApi;
 			this.___addLogs(this.___logs);
@@ -231,10 +237,10 @@
 
 
 
-		Tracker.prototype.___refresh = function() {
+		Tracker.prototype.___refresh = function(force) {
 
 			this.___innerTarget = this.___renderShell();
-			if (!this.___miniMized) {
+			if (!this.___miniMized || force) {
 				this.___render();
 
 			}
@@ -456,8 +462,10 @@
 
 
 
-		Tracker.prototype.___createTarget = function() {
-			var defualtTarget = window.document.getElementById('tracker');
+		Tracker.prototype.___createTarget = function(targetId) {
+
+
+			var defualtTarget = window.document.getElementById(targetId || 'tracker');
 			if (defualtTarget) {
 				return defualtTarget;
 			}
@@ -612,7 +620,7 @@
 
 
 
-				if (add) {
+				if (add && target) {
 					if (target.addEventListener) {
 						target.addEventListener(item.event, handler);
 					} else if (target.attachEvent) {
@@ -762,7 +770,7 @@
 
 
 
-		Tracker.prototype.___templateShell = '<div style="margin:1px; font-family:monospace; background:rgba(0,0,0,{{alpha}});padding:2px; font-size:12px; color:white; "><div>{{#items}}<p id="tracker-{{id}}" style="font-family:monospace;float:left; color:{{color}}; cursor:pointer; margin-top:0px;margin-bottom:0px;"> [{{title}}]</p>{{/items}}</div>{{#plugins}}<div style="clear:both;" id="tracker-plugin-{{id}}"></div>{{/plugins}}<div style="clear:both;" id="tracker-content"></div></div>';
+		Tracker.prototype.___templateShell = '<div style="margin:1px; font-family:monospace; background:rgb(0,0,0); background:rgba(0,0,0,{{alpha}});padding:2px; font-size:12px; color:white; "><div>{{#items}}<p id="tracker-{{id}}" style="font-family:monospace;float:left; color:{{color}}; cursor:pointer; margin-top:0px;margin-bottom:0px;"> [{{title}}]</p>{{/items}}</div>{{#plugins}}<div style="clear:both;" id="tracker-plugin-{{id}}"></div>{{/plugins}}<div style="clear:both;" id="tracker-content"></div></div>';
 
 		Tracker.prototype.___template = '<div>{{#fixed}}<p style="font-family:monospace;margin:1px; color:{{color}};">{{key}} : {{value}}</p>{{/fixed}}</div><div">{{#rolling}}<p style="margin:1px;color:{{color}};">{{key}} : {{value}}</p>{{/rolling}}</div>';
 
